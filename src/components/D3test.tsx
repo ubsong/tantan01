@@ -1,12 +1,26 @@
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Box3 } from './Box3';
-import { useState } from "react";
+import { useRef, useState } from "react";
+import type { Group } from 'three';
+
+// 자식 모델을 Y축 기준으로 계속 회전시키는 래퍼 (라이트는 고정, 모델만 회전)
+const Rotator = ({ children, speed = 0.5, enabled = true }: { children: React.ReactNode; speed?: number; enabled?: boolean }) => {
+  const ref = useRef<Group>(null);
+
+  useFrame((_, delta) => {
+    if (!enabled) return; // 멈춰도 현재 각도는 유지됨
+    if (ref.current) ref.current.rotation.y += delta * speed; // delta 곱셈으로 프레임 속도와 무관하게 일정
+  });
+
+  return <group ref={ref}>{children}</group>;
+};
 
 const D3test = () => {
 
   const [animationName, setAnimationName] = useState(null);
   const [loop, setLoop] = useState(true);
+  const [rotating, setRotating] = useState(true);
 
   const handlePlay = (actionName: string ) => {
 
@@ -32,6 +46,12 @@ const D3test = () => {
           <button onClick={() => setLoop(!loop)} style={{ backgroundColor: loop ? "green" : "gray" }}>
             루프 상태: {loop ? "반복 재생 중" : "한번만 재생"}
           </button>
+
+          <button
+            className={`px-4 py-2 text-white rounded ${rotating ? "bg-emerald-600 hover:bg-emerald-700" : "bg-gray-500 hover:bg-gray-600"}`}
+            onClick={() => setRotating(!rotating)}>
+            모델 회전: {rotating ? "ON" : "OFF"}
+          </button>
         </div>
 
       {/* 1. Canvas 컴포넌트에 그림자 활성화 및 카메라 설정, 배경색 추가 */}
@@ -56,7 +76,9 @@ const D3test = () => {
         <pointLight position={[-5, -2, -5]} intensity={0.5} color="#edf2f7" />
 
         {/* 4. 오브젝트 및 그림자를 받는 바닥 */}
-        <Box3 currentAction={animationName} isLooping={loop} />
+        <Rotator enabled={rotating}>
+          <Box3 currentAction={animationName} isLooping={loop} />
+        </Rotator>
 
         {/* 그림자가 맺힐 바닥 공간 */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>

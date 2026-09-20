@@ -59,10 +59,10 @@ export function Box3({ currentAction, isLooping = true, ...props }) {
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">
-        <mesh name="low" geometry={nodes.low.geometry}>
+        <mesh name="low" geometry={nodes.low.geometry} castShadow receiveShadow>
           <meshStandardMaterial
-            // {...materials["Material.001"]}
-            map={newTexture}
+            {...materials["Material.001"]}
+            // map={newTexture}
           />
         </mesh>
       </group>

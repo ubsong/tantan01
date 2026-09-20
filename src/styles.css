@@ -1,6 +1,15 @@
 
 @import "tailwindcss";
 
+@keyframes scan {
+  from {
+    top: -2rem;
+  }
+  to {
+    top: 100%;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
